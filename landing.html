@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClockClock Experience - Choose Your Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e, #2d2d3d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 3rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+        
+        .option:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .option-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .option-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .option-desc {
+            font-size: 0.9rem;
+            color: #bbb;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .countdown-special {
+            border: 2px solid #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .countdown-special:hover {
+            background: rgba(255, 107, 107, 0.2);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .event-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .event-date {
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .options {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ClockClock Experience</h1>
+        <p class="subtitle">
+            Experience the mesmerizing blend of analog and digital time display.<br>
+            Choose your preferred mode below.
+        </p>
+        
+        <div class="options">
+            <a href="countdown.html" class="option countdown-special">
+                <div class="option-icon">🚀</div>
+                <div class="option-title">Event Countdown</div>
+                <div class="option-desc">
+                    Beautiful countdown to your special event with dual analog & digital display
+                </div>
+            </a>
+            
+            <a href="index.html" class="option">
+                <div class="option-icon">🕐</div>
+                <div class="option-title">Original Clock</div>
+                <div class="option-desc">
+                    Classic ClockClock experience showing current time in elegant analog format
+                </div>
+            </a>
+        </div>
+        
+        <div class="event-info">
+            <div class="event-date">🎯 Current Event: June 29, 2025 at 10:00 AM</div>
+        </div>
+    </div>
+</body>
+</html>
