@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Event Countdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ff6b6b;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .event-date {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            color: #ccc;
+        }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .time-unit {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 100px;
+            border: 2px solid #0f3460;
+        }
+        .number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4ecdc4;
+            display: block;
+        }
+        .label {
+            font-size: 1em;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .message {
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: #ccc;
+        }
+        .celebration {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 107, 107, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .celebration-content {
+            background: white;
+            color: #333;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .countdown {
+                gap: 15px;
+            }
+            .time-unit {
+                min-width: 80px;
+                padding: 15px;
+            }
+            .number {
+                font-size: 2em;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Event Launch Countdown</h1>
+        <div class="event-date">June 29, 2025 at 10:00 AM</div>
+        
+        <div class="countdown">
+            <div class="time-unit">
+                <span class="number" id="days">00</span>
+                <span class="label">Days</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="hours">00</span>
+                <span class="label">Hours</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="minutes">00</span>
+                <span class="label">Minutes</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="seconds">00</span>
+                <span class="label">Seconds</span>
+            </div>
+        </div>
+        
+        <div class="message" id="message">
+            Counting down to your special event...
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <h2>🎉 Event Launched! 🎉</h2>
+            <p>Your event has begun!</p>
+            <button onclick="closeCelebration()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Event date - June 29, 2025 at 10:00 AM
+        var eventDate = new Date('2025-06-29T10:00:00').getTime();
+        
+        function updateCountdown() {
+            var now = new Date().getTime();
+            var timeLeft = eventDate - now;
+            
+            if (timeLeft < 0) {
+                // Event has started
+                document.getElementById('celebration').style.display = 'flex';
+                document.getElementById('message').innerHTML = 'Event has launched! 🚀';
+                return;
+            }
+            
+            // Calculate time units
+            var days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update display
+            document.getElementById('days').innerHTML = String(days).padStart(2, '0');
+            document.getElementById('hours').innerHTML = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerHTML = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerHTML = String(seconds).padStart(2, '0');
+            
+            // Update message
+            if (days > 0) {
+                document.getElementById('message').innerHTML = days + ' days until your event launches!';
+            } else if (hours > 0) {
+                document.getElementById('message').innerHTML = hours + ' hours until launch!';
+            } else if (minutes > 0) {
+                document.getElementById('message').innerHTML = minutes + ' minutes until launch!';
+            } else {
+                document.getElementById('message').innerHTML = 'Launching in ' + seconds + ' seconds!';
+            }
+        }
+        
+        function closeCelebration() {
+            document.getElementById('celebration').style.display = 'none';
+        }
+        
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
