@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClockClock 24 - Event Countdown</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .event-info {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .digital-countdown {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .digital-unit {
+            text-align: center;
+        }
+
+        .digital-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .digital-label {
+            font-size: 0.9rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .clockclock-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .clock-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .mini-clock {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            position: relative;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent 50%),
+                radial-gradient(circle at center, #f8f8f8, #e8e8e8);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.1),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .mini-clock::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: #666;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .clock-hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 2px;
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .hour-hand {
+            width: 4px;
+            height: 25px;
+            background: linear-gradient(to top, #444, #222);
+            margin-left: -2px;
+            margin-top: -25px;
+        }
+
+        .minute-hand {
+            width: 2px;
+            height: 35px;
+            background: linear-gradient(to top, #222, #000);
+            margin-left: -1px;
+            margin-top: -35px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #fff, #f0f0f0);
+            border: 2px solid #ddd;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .mode-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .launch-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            margin: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalPop 0.5s ease-out;
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .modal-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: white;
+            opacity: 0.9;
+        }
+
+        @keyframes modalPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .clock-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .mini-clock {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .hour-hand {
+                height: 18px;
+                margin-top: -18px;
+                width: 3px;
+                margin-left: -1.5px;
+            }
+            
+            .minute-hand {
+                height: 25px;
+                margin-top: -25px;
+                width: 2px;
+                margin-left: -1px;
+            }
+            
+            .clockclock-container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .clock-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .mini-clock {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .hour-hand {
+                height: 15px;
+                margin-top: -15px;
+            }
+            
+            .minute-hand {
+                height: 20px;
+                margin-top: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">ClockClock 24 - Event Countdown</h1>
+        <div class="event-info">June 29, 2025 at 10:00 AM</div>
+        
+        <div class="digital-countdown">
+            <div class="digital-unit">
+                <div class="digital-number" id="days">15</div>
+                <div class="digital-label">Days</div>
+            </div>
+            <div class="digital-unit">
+                <div class="digital-number" id="hours">04</div>
+                <div class="digital-label">Hours</div>
+            </div>
+            <div class="digital-unit">
+                <div class="digital-number" id="minutes">23</div>
+                <div class="digital-label">Minutes</div>
+            </div>
+            <div class="digital-unit">
+                <div class="digital-number" id="seconds">45</div>
+                <div class="digital-label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mode-info" id="modeInfo">
+        Displaying: Days and Hours on ClockClock
+    </div>
+
+    <div class="clockclock-container">
+        <div class="clock-grid" id="clockGrid"></div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="toggleMode()">Switch Display Mode</button>
+        <button class="control-btn" onclick="testLaunch()">Test Launch</button>
+    </div>
+
+    <div class="launch-modal" id="launchModal">
+        <div class="modal-content">
+            <h2>🎉 Event Launched! 🎉</h2>
+            <p>Your event has begun!</p>
+            <button class="control-btn" onclick="closeLaunch()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Event configuration
+        const EVENT_DATE = new Date('2025-06-29T10:00:00');
+        let displayMode = 'days-hours'; // 'days-hours', 'hours-minutes', 'minutes-seconds'
+        let clocks = [];
+        let launched = false;
+
+        // 7-segment patterns for digits (4x6 grid per digit)
+        const digitPatterns = {
+            0: [
+                [1,1,1,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,1,1,1]
+            ],
+            1: [
+                [0,0,1,0],
+                [0,1,1,0],
+                [0,0,1,0],
+                [0,0,1,0],
+                [0,0,1,0],
+                [0,1,1,1]
+            ],
+            2: [
+                [1,1,1,1],
+                [0,0,0,1],
+                [0,0,0,1],
+                [1,1,1,1],
+                [1,0,0,0],
+                [1,1,1,1]
+            ],
+            3: [
+                [1,1,1,1],
+                [0,0,0,1],
+                [0,0,0,1],
+                [1,1,1,1],
+                [0,0,0,1],
+                [1,1,1,1]
+            ],
+            4: [
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,1,1,1],
+                [0,0,0,1],
+                [0,0,0,1]
+            ],
+            5: [
+                [1,1,1,1],
+                [1,0,0,0],
+                [1,0,0,0],
+                [1,1,1,1],
+                [0,0,0,1],
+                [1,1,1,1]
+            ],
+            6: [
+                [1,1,1,1],
+                [1,0,0,0],
+                [1,0,0,0],
+                [1,1,1,1],
+                [1,0,0,1],
+                [1,1,1,1]
+            ],
+            7: [
+                [1,1,1,1],
+                [0,0,0,1],
+                [0,0,1,0],
+                [0,1,0,0],
+                [0,1,0,0],
+                [1,0,0,0]
+            ],
+            8: [
+                [1,1,1,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,1,1,1],
+                [1,0,0,1],
+                [1,1,1,1]
+            ],
+            9: [
+                [1,1,1,1],
+                [1,0,0,1],
+                [1,0,0,1],
+                [1,1,1,1],
+                [0,0,0,1],
+                [1,1,1,1]
+            ]
+        };
+
+        // Initialize clocks
+        function initClocks() {
+            const grid = document.getElementById('clockGrid');
+            
+            // Create 24 clocks in 6x4 grid
+            for (let i = 0; i < 24; i++) {
+                const clockElement = document.createElement('div');
+                clockElement.className = 'mini-clock';
+                
+                const hourHand = document.createElement('div');
+                hourHand.className = 'clock-hand hour-hand';
+                
+                const minuteHand = document.createElement('div');
+                minuteHand.className = 'clock-hand minute-hand';
+                
+                clockElement.appendChild(hourHand);
+                clockElement.appendChild(minuteHand);
+                grid.appendChild(clockElement);
+                
+                clocks.push({
+                    element: clockElement,
+                    hourHand: hourHand,
+                    minuteHand: minuteHand
+                });
+            }
+        }
+
+        // Set clock hands to specific angles
+        function setClockHands(clockIndex, hourAngle, minuteAngle) {
+            if (clocks[clockIndex]) {
+                clocks[clockIndex].hourHand.style.transform = `rotate(${hourAngle}deg)`;
+                clocks[clockIndex].minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+            }
+        }
+
+        // Display two digits on the clock grid (6x4 = 24 clocks, showing 2 digits)
+        function displayDigits(leftDigit, rightDigit) {
+            const leftPattern = digitPatterns[leftDigit] || digitPatterns[0];
+            const rightPattern = digitPatterns[rightDigit] || digitPatterns[0];
+            
+            let clockIndex = 0;
+            
+            // Display in 6x4 grid (3 columns per digit)
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 6; col++) {
+                    let shouldShow = false;
+                    
+                    if (col < 3) {
+                        // Left digit (columns 0-2, but pattern is 4 wide, so map to 0-2)
+                        const patternCol = Math.floor(col * 4 / 3);
+                        shouldShow = leftPattern[row] && leftPattern[row][patternCol];
+                    } else {
+                        // Right digit (columns 3-5)
+                        const patternCol = Math.floor((col - 3) * 4 / 3);
+                        shouldShow = rightPattern[row] && rightPattern[row][patternCol];
+                    }
+                    
+                    if (shouldShow) {
+                        // Form segments based on position
+                        if (row === 0 || row === 3) {
+                            // Top and bottom horizontal segments
+                            setClockHands(clockIndex, 90, 270); // 3 and 9 o'clock
+                        } else {
+                            // Middle segments - vertical
+                            setClockHands(clockIndex, 0, 180); // 12 and 6 o'clock
+                        }
+                    } else {
+                        // Idle animation - gentle rotation
+                        const time = Date.now() / 4000;
+                        const angle = (time + clockIndex * 15) % 360;
+                        setClockHands(clockIndex, angle, angle + 90);
+                    }
+                    
+                    clockIndex++;
+                }
+            }
+        }
+
+        // Update countdown
+        function updateCountdown() {
+            if (launched) return;
+            
+            const now = new Date();
+            const timeLeft = EVENT_DATE - now;
+            
+            if (timeLeft <= 0) {
+                launched = true;
+                showLaunch();
+                return;
+            }
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update digital display
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            
+            // Auto-switch display mode based on time left
+            if (days > 0) {
+                displayMode = 'days-hours';
+                displayDigits(Math.floor(days / 10), days % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${days} Days (showing days on ClockClock)`;
+            } else if (hours > 0) {
+                displayMode = 'hours-minutes';
+                displayDigits(Math.floor(hours / 10), hours % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${hours} Hours (showing hours on ClockClock)`;
+            } else {
+                displayMode = 'minutes-seconds';
+                displayDigits(Math.floor(minutes / 10), minutes % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${minutes} Minutes (showing minutes on ClockClock)`;
+            }
+        }
+
+        // Toggle display mode manually
+        function toggleMode() {
+            const now = new Date();
+            const timeLeft = EVENT_DATE - now;
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            if (displayMode === 'days-hours') {
+                displayMode = 'hours-minutes';
+                displayDigits(Math.floor(hours / 10), hours % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${hours} Hours (manual mode)`;
+            } else if (displayMode === 'hours-minutes') {
+                displayMode = 'minutes-seconds';
+                displayDigits(Math.floor(minutes / 10), minutes % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${minutes} Minutes (manual mode)`;
+            } else {
+                displayMode = 'days-hours';
+                displayDigits(Math.floor(days / 10), days % 10);
+                document.getElementById('modeInfo').textContent = `Displaying: ${days} Days (manual mode)`;
+            }
+        }
+
+        // Test launch modal
+        function testLaunch() {
+            showLaunch();
+        }
+
+        // Show launch modal
+        function showLaunch() {
+            document.getElementById('launchModal').style.display = 'flex';
+        }
+
+        // Close launch modal
+        function closeLaunch() {
+            document.getElementById('launchModal').style.display = 'none';
+        }
+
+        // Initialize everything
+        initClocks();
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
