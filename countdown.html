@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Event Countdown - ClockClock Experience</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/style.css"/>
+    <link rel="stylesheet" href="style/themes.css"/>
+    <link rel="stylesheet" href="style/countdown.css"/>
+</head>
+<body>
+<div class="container">
+    <div class="event-header">
+        <h1 class="event-title">🚀 Event Launch Countdown</h1>
+        <div class="event-details">
+            <p class="event-date">June 29, 2025 at 10:00 AM</p>
+            <div class="countdown-display" id="countdownDisplay">
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="clock-panel">
+        <canvas id="canvas"></canvas>
+        <div id="parent" class="background"></div>
+    </div>
+    
+    <div class="controls">
+        <button id="modeToggle" class="control-btn">Switch to Clock Mode</button>
+        <button id="themeToggle" class="control-btn">Change Theme</button>
+    </div>
+</div>
+
+<div id="proto" class="clock-calc clock"></div>
+
+<div id="launchModal" class="launch-modal hidden">
+    <div class="modal-content">
+        <h2>🎉 Event Launched! 🎉</h2>
+        <p>Your event has begun!</p>
+        <button id="closeModal" class="control-btn">Continue</button>
+    </div>
+</div>
+
+</body>
+<script type="module" src="scripts/utils.js"></script>
+<script type="module" src="scripts/digits.js"></script>
+<script type="module" src="scripts/settings.js"></script>
+<script type="module" src="scripts/clock.js"></script>
+<script type="module" src="countdown.js"></script>
+</html>
