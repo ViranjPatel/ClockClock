@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Countdown - ClockClock Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e, #2d2d3d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .event-header {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .event-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .event-date {
+            font-size: 1.5rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-display {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .countdown-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            min-width: 120px;
+        }
+
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4ecdc4;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .countdown-label {
+            font-size: 1rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .clock-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mini-clock {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(0,0,0,0.2));
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+
+        .mini-clock::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            box-shadow: 0 0 8px rgba(255, 107, 107, 0.8);
+        }
+
+        .clock-hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 2px;
+            transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hour-hand {
+            width: 3px;
+            height: 25px;
+            background: linear-gradient(to top, #4ecdc4, #45b7aa);
+            margin-left: -1.5px;
+            margin-top: -25px;
+        }
+
+        .minute-hand {
+            width: 2px;
+            height: 35px;
+            background: linear-gradient(to top, #ff6b6b, #e55555);
+            margin-left: -1px;
+            margin-top: -35px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .launch-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .launch-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .launch-modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .modal-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: white;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .event-title {
+                font-size: 2rem;
+            }
+            
+            .countdown-display {
+                gap: 1rem;
+            }
+            
+            .countdown-unit {
+                min-width: 100px;
+                padding: 1rem;
+            }
+            
+            .countdown-number {
+                font-size: 2rem;
+            }
+            
+            .clock-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                padding: 1rem;
+            }
+            
+            .mini-clock {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .hour-hand {
+                height: 18px;
+                margin-top: -18px;
+            }
+            
+            .minute-hand {
+                height: 25px;
+                margin-top: -25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .clock-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mini-clock {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="event-header">
+            <h1 class="event-title">🚀 Event Launch Countdown</h1>
+            <p class="event-date">June 29, 2025 at 10:00 AM</p>
+            
+            <div class="countdown-display">
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-unit">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="clock-grid" id="clockGrid"></div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="toggleMode()">Switch to Clock Mode</button>
+            <button class="control-btn" onclick="changeTheme()">Change Theme</button>
+        </div>
+    </div>
+
+    <div class="launch-modal" id="launchModal">
+        <div class="modal-content">
+            <h2>🎉 Event Launched! 🎉</h2>
+            <p>Your event has begun!</p>
+            <button class="control-btn" onclick="closeModal()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Event launch date - June 29, 2025 at 10:00 AM
+        const EVENT_DATE = new Date('2025-06-29T10:00:00');
+        
+        let isCountdownMode = true;
+        let clocks = [];
+        let currentTheme = 0;
+        const themes = [
+            { bg: 'linear-gradient(135deg, #1e1e2e, #2d2d3d)', accent: '#4ecdc4' },
+            { bg: 'linear-gradient(135deg, #2c3e50, #34495e)', accent: '#e74c3c' },
+            { bg: 'linear-gradient(135deg, #8e44ad, #9b59b6)', accent: '#f39c12' },
+            { bg: 'linear-gradient(135deg, #27ae60, #2ecc71)', accent: '#e67e22' }
+        ];
+
+        // Initialize clocks
+        function initClocks() {
+            const grid = document.getElementById('clockGrid');
+            
+            for (let i = 0; i < 24; i++) {
+                const clockElement = document.createElement('div');
+                clockElement.className = 'mini-clock';
+                
+                const hourHand = document.createElement('div');
+                hourHand.className = 'clock-hand hour-hand';
+                
+                const minuteHand = document.createElement('div');
+                minuteHand.className = 'clock-hand minute-hand';
+                
+                clockElement.appendChild(hourHand);
+                clockElement.appendChild(minuteHand);
+                grid.appendChild(clockElement);
+                
+                clocks.push({
+                    element: clockElement,
+                    hourHand: hourHand,
+                    minuteHand: minuteHand
+                });
+            }
+        }
+
+        // Set clock hands to specific angles
+        function setClockHands(clockIndex, hourAngle, minuteAngle) {
+            const clock = clocks[clockIndex];
+            if (clock) {
+                clock.hourHand.style.transform = `rotate(${hourAngle}deg)`;
+                clock.minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+            }
+        }
+
+        // Update countdown and display
+        function updateCountdown() {
+            const now = new Date();
+            const timeLeft = EVENT_DATE - now;
+            
+            if (timeLeft <= 0) {
+                showLaunchModal();
+                isCountdownMode = false;
+                displayCurrentTime();
+                return;
+            }
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update countdown display
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            // Update clocks
+            if (isCountdownMode) {
+                displayCountdownOnClocks(days, hours, minutes, seconds);
+            } else {
+                displayCurrentTime();
+            }
+        }
+
+        // Display countdown on analog clocks
+        function displayCountdownOnClocks(days, hours, minutes, seconds) {
+            // Clear all clocks first
+            for (let i = 0; i < 24; i++) {
+                const time = Date.now() / 3000;
+                const angle = (time + i * 15) % 360;
+                setClockHands(i, angle, angle + 90);
+            }
+
+            // Display time on center clocks
+            if (days > 0) {
+                displayTimeDigits(Math.min(days, 99), hours);
+            } else if (hours > 0) {
+                displayTimeDigits(hours, minutes);
+            } else {
+                displayTimeDigits(minutes, seconds);
+            }
+        }
+
+        // Display two-digit time on clocks
+        function displayTimeDigits(left, right) {
+            const leftStr = left.toString().padStart(2, '0');
+            const rightStr = right.toString().padStart(2, '0');
+            
+            // Display on center clocks (8x3 grid, use middle area)
+            const patterns = getDigitPatterns();
+            
+            // Left digit (first 2 columns)
+            displayDigit(leftStr[0], 1, 0, patterns);
+            displayDigit(leftStr[1], 1, 2, patterns);
+            
+            // Colon separator
+            setClockHands(13, 0, 180); // 12-6 o'clock
+            setClockHands(21, 0, 180); // 12-6 o'clock
+            
+            // Right digit (last 2 columns)
+            displayDigit(rightStr[0], 1, 4, patterns);
+            displayDigit(rightStr[1], 1, 6, patterns);
+        }
+
+        // Display single digit at specific position
+        function displayDigit(digit, startRow, startCol, patterns) {
+            const pattern = patterns[digit] || patterns['0'];
+            
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 2; col++) {
+                    const clockIndex = (startRow + row) * 8 + (startCol + col);
+                    if (clockIndex < 24 && pattern[row] && pattern[row][col]) {
+                        if (row === 0 || row === 2) {
+                            // Horizontal segments
+                            setClockHands(clockIndex, 90, 270);
+                        } else {
+                            // Vertical segments
+                            setClockHands(clockIndex, 0, 180);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Get digit patterns for 7-segment display
+        function getDigitPatterns() {
+            return {
+                '0': [[1,1], [1,1], [1,1]],
+                '1': [[0,1], [0,1], [0,1]],
+                '2': [[1,1], [1,0], [0,1]],
+                '3': [[1,1], [0,1], [1,1]],
+                '4': [[1,1], [1,1], [0,1]],
+                '5': [[1,1], [0,1], [1,0]],
+                '6': [[1,0], [1,1], [1,1]],
+                '7': [[1,1], [0,1], [0,1]],
+                '8': [[1,1], [1,1], [1,1]],
+                '9': [[1,1], [1,1], [0,1]]
+            };
+        }
+
+        // Display current time
+        function displayCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            displayTimeDigits(hours, minutes);
+        }
+
+        // Show launch modal
+        function showLaunchModal() {
+            document.getElementById('launchModal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('launchModal').classList.remove('show');
+        }
+
+        // Toggle between countdown and clock mode
+        function toggleMode() {
+            isCountdownMode = !isCountdownMode;
+        }
+
+        // Change theme
+        function changeTheme() {
+            currentTheme = (currentTheme + 1) % themes.length;
+            const theme = themes[currentTheme];
+            document.body.style.background = theme.bg;
+            
+            // Update accent colors
+            const style = document.createElement('style');
+            style.textContent = `
+                .countdown-number { color: ${theme.accent} !important; }
+                .mini-clock::before { background: ${theme.accent} !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Initialize everything
+        initClocks();
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
